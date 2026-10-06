@@ -35,20 +35,21 @@
     <p class="brand">TCGShield Sync</p>
     <p class="eyebrow">Application privacy</p>
     <h1>Privacy policy</h1>
-    <p class="updated">Last updated: <time datetime="2026-10-01">1 October 2026</time></p>
+    <p class="updated">Last updated: <time datetime="2026-10-06">6 October 2026</time></p>
   </header>
   <div class="summary"><p>TCGShield Pty Ltd operates TCGShield Sync for its own eBay selling activity in Australia and the United States. This policy covers the integration and this privacy page.</p></div>
 
   <section aria-labelledby="scope">
     <h2 id="scope">Current scope</h2>
-    <p>We are setting up seller authorisation and listing management. We also receive eBay account-deletion notifications. We have not enabled production order imports and do not currently keep an eBay buyer or order database in this integration.</p>
-    <p>We will update this policy and put deletion handling in place before enabling order imports, buyer-data storage or transfers to fulfilment services. This policy covers TCGShield Sync; it does not describe all data handling by our other sales channels.</p>
+    <p>We use the integration to manage our eBay listings and route eligible US orders to Amazon Multi-Channel Fulfillment (MCF). Amazon holds our US stock and ships these orders to the buyer. We also receive and process eBay account-deletion notifications.</p>
+    <p>This policy covers TCGShield Sync. It does not describe all data handling by our other sales channels.</p>
   </section>
 
   <section aria-labelledby="information">
     <h2 id="information">Information we handle</h2>
     <ul>
       <li><strong>Seller authorisation and listing information.</strong> When we connect our seller account, eBay supplies authorisation tokens. We use those tokens to access the account settings, business policies, inventory and listing information needed to manage our listings. Business policies and listings may include business contact or location details. We sign in on eBay's own pages; the integration does not collect eBay passwords.</li>
+      <li><strong>Orders and delivery.</strong> We read order and line-item identifiers, products, quantities, payment and fulfilment status, buyer account identifiers, and recipient names and postal addresses from eBay. We process recipient names and addresses in memory and send them to Amazon MCF to deliver eligible orders. We do not save those names or addresses in our local database. We keep minimal order references, quantities, fulfilment and tracking state, and keyed buyer lookup hashes for recovery and deletion handling. We send shipment and tracking information back to eBay.</li>
       <li><strong>Account-deletion notifications.</strong> eBay sends account identifiers and notification details when an account requires deletion handling. Our receiver checks that the message came from eBay and converts account identifiers into keyed lookup hashes. We store those hashes, a hashed notification reference and a receipt timestamp in a Cloudflare database until our local service processes the notice. The hashes are pseudonymous information, not anonymous data. We do not save the raw notification payload or write its contents to application logs.</li>
       <li><strong>Privacy enquiries.</strong> If you email us, we receive your email address and the information you choose to send. We use these to investigate and reply to your request.</li>
       <li><strong>Connection information.</strong> GitHub Pages hosts this privacy page and logs visitor IP addresses for security purposes. Cloudflare hosts our notification receiver and processes technical information such as IP addresses and request traffic to deliver and protect that service.</li>
@@ -57,13 +58,16 @@
 
   <section aria-labelledby="use">
     <h2 id="use">How we use and share information</h2>
-    <p>We use information to authorise our own seller account, manage listings, handle deletion notifications, protect the integration and respond to privacy enquiries. We exchange information with eBay for these purposes and use GitHub Pages, Cloudflare and our email service providers to publish this policy, operate the service and handle enquiries.</p>
+    <p>We use information to authorise our seller account, manage listings, fulfil orders, return tracking information to eBay, handle deletion requests and protect the integration. We share the recipient name, postal address and order items with Amazon MCF for US delivery. We use Cloudflare for the deletion receiver and queue, GitHub Pages for the separate public policy page, and our email providers to handle enquiries.</p>
     <p>We do not sell eBay personal information, use it for unrelated advertising, or use it to train AI or machine-learning models. We may disclose information when the law requires it.</p>
   </section>
 
   <section aria-labelledby="retention">
     <h2 id="retention">Retention, deletion and security</h2>
-    <p>The notification receiver discards the raw payload after creating the queued record. Our local service removes the queued record after processing it and keeps the keyed account hashes to prevent re-importing data that has been deleted. Those suppression records remain while we operate the integration; they contain no names, addresses or original account identifiers. Cloudflare recovery copies may retain deleted queue records for its configured recovery period. Production order imports remain disabled, so there are no imported buyer or order records at this stage.</p>
+    <p>The notification receiver discards the raw payload after creating a queued hash record. Our local service commits suppression hashes and removes matching local order, identity and tracking records before removing the notice from the queue. We keep suppression hashes while we operate the integration to prevent re-import. The hashes contain no names, addresses or original account identifiers. Cloudflare recovery copies may retain deleted queue records for its configured recovery period.</p>
+    <p>We remove routine local order records 30 days after local fulfilment processing ends. For orders sent or possibly sent to Amazon, we keep the minimum MCF reference and hashed association needed to request provider cleanup. We create a private request record when local retention expires or when we receive a matching deletion notice. An authorised operator submits that request to Amazon Merchant Support and records its outcome. We remove the association after Amazon confirms erasure. A specific legal-retention exception requires a recorded support case and further review.</p>
+    <p>We may keep a fulfilment reference and item quantities while a shipment remains in progress so deletion does not release stock that is still committed. We also keep an opaque order reference while we operate the integration to prevent a cleaned-up order from being fulfilled again; that record has no buyer association.</p>
+    <p>Removing our local records does not remove information held by Amazon. Amazon handles recipient information under its service terms and applicable retention obligations; we use its support process to request deletion and track unresolved requests.</p>
     <p>We keep authorisation credentials while we need the authorised connection, and enquiry records while we need them to resolve the request or meet an applicable legal obligation. We delete eBay personal information when it is no longer needed, when eBay or the person concerned requests deletion, or when our eBay API participation ends, subject to any specific legal retention requirement.</p>
     <p>We use HTTPS for the integration's connections and limit access to credentials to authorised operators. Revoking the application's access in your eBay account settings stops future authorised access; you can also contact us about information we already hold.</p>
   </section>
